@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle, XCircle, FileText, Users, Calendar, AlertTriangle, CheckSquare, Printer } from "lucide-react"
 
@@ -55,7 +54,6 @@ export default function ConfirmarSeleccion() {
   const [loading, setLoading] = useState(false)
   const [proyecto, setProyecto] = useState<Proyecto | null>(null)
   const [contratos, setContratos] = useState<Contrato[]>([])
-  const [shouldClearOnFocus, setShouldClearOnFocus] = useState(false)
   const [progress, setProgress] = useState(0)
 
   // Datos de ejemplo
@@ -164,31 +162,38 @@ export default function ConfirmarSeleccion() {
     await new Promise((resolve) => setTimeout(resolve, 1000))
 
     if (!numeroProyecto.trim()) {
-      setError("Los datos son incorrectos. Intenta nuevamente.")
-      setShouldClearOnFocus(true) // Marcar para limpiar en próximo focus
+      setError("Los datos son incorrectos. Intenta nuevamente")
+      setNumeroProyecto("")
       setLoading(false)
       return
     }
 
     // Verificar si contiene letras
     if (!/^\d+$/.test(numeroProyecto)) {
-      setError("Los datos son incorrectos. Intenta nuevamente.")
-      setShouldClearOnFocus(true) // Marcar para limpiar en próximo focus
+      setError("Los datos son incorrectos. Intenta nuevamente")
+      setNumeroProyecto("")
       setLoading(false)
       return
     }
 
     // Verificar si no tiene exactamente 5 dígitos
     if (numeroProyecto.length !== 5) {
-      setError("Los datos están incompletos. Intenta nuevamente.")
-      setShouldClearOnFocus(true) // Marcar para limpiar en próximo focus
+      setError("Los datos están incompletos. Intenta nuevamente")
+      setNumeroProyecto("")
       setLoading(false)
       return
     }
 
     if (numeroProyecto === "11111") {
       setError("No se ha podido encontrar el proyecto ingresado. Intente nuevamente")
-      setShouldClearOnFocus(true) // Marcar para limpiar en próximo focus
+      setNumeroProyecto("")
+      setLoading(false)
+      return
+    }
+
+    if (numeroProyecto === "22222") {
+      setError("El proyecto no se encuentra en estado 'En evaluacion'")
+      setNumeroProyecto("")
       setLoading(false)
       return
     }
@@ -341,7 +346,6 @@ export default function ConfirmarSeleccion() {
     setError("")
     setProyecto(null)
     setContratos([])
-    setShouldClearOnFocus(false)
     setProgress(0)
   }
 
@@ -374,10 +378,6 @@ export default function ConfirmarSeleccion() {
                   value={numeroProyecto}
                   maxLength={5}
                   onFocus={() => {
-                    if (shouldClearOnFocus) {
-                      setNumeroProyecto("")
-                      setShouldClearOnFocus(false)
-                    }
                     setError("")
                   }}
                   onChange={(e) => {
@@ -391,10 +391,10 @@ export default function ConfirmarSeleccion() {
               </div>
 
               {error && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
+                  <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-red-800 text-sm">{error}</p>
+                </div>
               )}
 
               <Button onClick={handleBuscarProyecto} className="w-full" disabled={loading}>
@@ -406,15 +406,19 @@ export default function ConfirmarSeleccion() {
                 <ul className="space-y-2 text-sm text-blue-600">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ingrese cualquier número válido para continuar con el flujo normal</span>
+                    <span>Ingrese cualquier número válido para continuar.</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ingrese "11111" para simular que el proyecto no se encuentra</span>
+                    <span>Ingrese texto o números incompletos para simular datos no válidos.</span>
                   </li>
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
-                    <span>Ingrese texto o números incompletos para simular datos no válidos</span>
+                    <span>Ingrese "11111" para simular que el proyecto no se encuentra.</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="mr-2">•</span>
+                    <span>Ingrese "22222" para simular que el proyecto no está en estado "En evaluacion".</span>
                   </li>
                 </ul>
               </div>
@@ -427,7 +431,7 @@ export default function ConfirmarSeleccion() {
 
   if (step === "processing") {
     return (
-      <div className="min-h-screen bg-slate-100 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         <div className="max-w-xl mx-auto">
           {/* Título principal del sistema */}
           <h1 className="text-3xl font-bold text-center text-black mb-6">Sistema de Prácticas Profesionales</h1>
@@ -463,7 +467,7 @@ export default function ConfirmarSeleccion() {
 
   if (step === "confirmation" && proyecto) {
     return (
-      <div className="min-h-screen bg-slate-100 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         {/* Título principal del sistema */}
         <h1 className="text-3xl font-bold text-center text-black mb-6">Sistema de Prácticas Profesionales</h1>
         <div className="max-w-6xl mx-auto space-y-6">
@@ -567,7 +571,7 @@ export default function ConfirmarSeleccion() {
     )
 
     return (
-      <div className="min-h-screen bg-slate-100 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         {/* Título principal del sistema */}
         <h1 className="text-3xl font-bold text-center text-black mb-6">Sistema de Prácticas Profesionales</h1>
         <div className="max-w-6xl mx-auto space-y-6">
@@ -657,7 +661,7 @@ export default function ConfirmarSeleccion() {
 
   if (step === "contracts") {
     return (
-      <div className="min-h-screen bg-slate-100 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
         {/* Título principal del sistema */}
         <h1 className="text-3xl font-bold text-center text-black mb-6">Sistema de Prácticas Profesionales</h1>
         <div className="max-w-6xl mx-auto space-y-6">
